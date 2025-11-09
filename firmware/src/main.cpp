@@ -12,6 +12,7 @@
 #include "mod/ModBase.h"
 #include "mod/AiStackChan/AiStackChanMod.h"
 #include "mod/AiStackChan/RealtimeAiMod.h"
+#include "mod/MyStackChan/MyStackChanMod.h"
 #include "mod/Pomodoro/PomodoroMod.h"
 #include "mod/PhotoFrame/PhotoFrameMod.h"
 #include "mod/StatusMonitor/StatusMonitorMod.h"
@@ -234,6 +235,7 @@ ModBase* init_mod(void)
     add_mod(new RealtimeAiMod(isOffline));
 #else
     add_mod(new AiStackChanMod(isOffline));
+    add_mod(new MyStackChanMod(isOffline));
 #endif
   }
   //add_mod(new PomodoroMod(isOffline));
@@ -282,9 +284,6 @@ void setup()
   auto cfg = M5.config();
 
   cfg.external_spk = true;    /// use external speaker (SPK HAT / ATOMIC SPK)
-//cfg.external_spk_detail.omit_atomic_spk = true; // exclude ATOMIC SPK
-//cfg.external_spk_detail.omit_spk_hat    = true; // exclude SPK HAT
-//  cfg.output_power = true;
   cfg.serial_baudrate = 115200;   //M5Unified 0.1.17からデフォルトが0になったため設定
   M5.begin(cfg);
 
@@ -483,7 +482,6 @@ void loop()
   }
 
   //reset_watchdog();
-  
 }
 
 
