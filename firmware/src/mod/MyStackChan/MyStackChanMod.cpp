@@ -30,7 +30,7 @@
 using namespace m5avatar;
 
 #if defined(ENABLE_WAKEWORD)
-bool wakeword_is_enable = false;
+extern bool wakeword_is_enable;
 #endif
 
 /// 外部参照 ///
@@ -39,8 +39,8 @@ extern bool servo_home;
 //extern bool wakeword_is_enable;
 extern void sw_tone();
 extern void alarm_tone();
+//extern void report_batt_level();
 ///////////////
-
 
 static void report_batt_level(){
   char buff[100];
@@ -61,10 +61,33 @@ static void report_batt_level(){
   avatar.setExpression(Expression::Neutral);
 }
 
+static void nodOnce() {
+    bool prev_servo_home = servo_home;  // 現在のservo_homeの状態を保存
+    int currentY = robot->m_config.getServoInfo(AXIS_Y)->start_degree;  // 現在のY軸の初期位置を取得
+    
+    servo_home = false;  // サーボの自動制御を無効化
+    
+    // 下を向く（500msで移動）- 現在位置から15度下向き
+    robot->servo->moveY(currentY - 10, 500);
+    delay(500);  // 移動完了を待つ
+    
+    // 元の位置に戻る（500msで移動）
+    robot->servo->moveY(currentY, 500);
+    delay(500);  // 移動完了を待つ
+    
+    servo_home = prev_servo_home;  // servo_homeの状態を元に戻す
+}
+
 static void MyResponse(String user_text){
   if(user_text.indexOf("こんにち") != -1){
     avatar.setExpression(Expression::Happy);
-    robot->speech("こんにちは。ご機嫌いかがですか？");
+    robot->speech("こんにちは。");
+
+    delay(1000);
+    nodOnce();
+    delay(1000);
+
+    robot->speech("ごきげんいかがですか？");
     avatar.setExpression(Expression::Neutral);
     return;
   } else if(user_text.indexOf("元気") != -1) {
@@ -77,8 +100,7 @@ static void MyResponse(String user_text){
     robot->speech("私の名前はスタックちゃんです。よろしくお願いします。");
     avatar.setExpression(Expression::Neutral);
     return;
-  }
-  
+  } 
 }
 
 static void STT_MyChat(const char *base64_buf = NULL) {
@@ -221,6 +243,13 @@ void MyStackChanMod::btnC_pressed(void)
 {
   sw_tone();
   report_batt_level();
+  nodOnce();
+}
+
+void MyStackChanMod::btnB_pressed(void)
+{
+  sw_tone();
+  nodOnce();
 }
 
 void MyStackChanMod::display_touched(int16_t x, int16_t y)
@@ -257,6 +286,7 @@ void MyStackChanMod::display_touched(int16_t x, int16_t y)
     //sw_tone();
   }
 }
+
 
 void MyStackChanMod::idle(void)
 {

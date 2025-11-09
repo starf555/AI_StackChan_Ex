@@ -23,10 +23,11 @@ public:
     void update(int page_no);
     void btnA_pressed(void);
     void btnB_longPressed(void);
+    void btnB_pressed(void);
     void btnC_pressed(void);
     void display_touched(int16_t x, int16_t y);
     void idle(void);
 };
 
 
-#endif  //_AI_STACKCHAN_MOD_H
+#endif  //_MY_STACKCHAN_MOD_H
