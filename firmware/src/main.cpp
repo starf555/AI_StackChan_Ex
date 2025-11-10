@@ -55,6 +55,7 @@ void check_heap_largest_free_block(void);
 
 //bool servo_home = false;
 bool servo_home = true;
+bool servo_controled_by_me=false;
 
 using namespace m5avatar;
 Avatar avatar;
@@ -133,12 +134,14 @@ void servo(void *args)
   for (;;)
   {
 #ifdef USE_SERVO
-    if(!servo_home)
-    {
-      avatar->getGaze(&gazeY, &gazeX);
-      robot->servo->moveToGaze((int)(15.0 * gazeX), (int)(10.0 * gazeY));
-    } else {
-      robot->servo->moveToOrigin();
+    if(!servo_controled_by_me){
+      if(!servo_home)
+      {
+        avatar->getGaze(&gazeY, &gazeX);
+        robot->servo->moveToGaze((int)(15.0 * gazeX), (int)(10.0 * gazeY));
+      } else {
+        robot->servo->moveToOrigin();
+      }
     }
 #endif
     delay(50);

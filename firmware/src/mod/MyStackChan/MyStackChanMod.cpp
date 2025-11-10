@@ -36,6 +36,7 @@ extern bool wakeword_is_enable;
 /// 外部参照 ///
 extern Avatar avatar;
 extern bool servo_home;
+extern bool servo_controled_by_me;
 //extern bool wakeword_is_enable;
 extern void sw_tone();
 extern void alarm_tone();
@@ -64,9 +65,10 @@ static void report_batt_level(){
 static void nodOnce() {
     bool prev_servo_home = servo_home;  // 現在のservo_homeの状態を保存
     int currentY = robot->m_config.getServoInfo(AXIS_Y)->start_degree;  // 現在のY軸の初期位置を取得
-    
+
+    servo_controled_by_me = true;
     servo_home = false;  // サーボの自動制御を無効化
-    
+
     // 下を向く（500msで移動）- 現在位置から15度下向き
     robot->servo->moveY(currentY - 10, 500);
     delay(500);  // 移動完了を待つ
@@ -75,6 +77,7 @@ static void nodOnce() {
     robot->servo->moveY(currentY, 500);
     delay(500);  // 移動完了を待つ
     
+    servo_controled_by_me = false;
     servo_home = prev_servo_home;  // servo_homeの状態を元に戻す
 }
 
