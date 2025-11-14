@@ -169,7 +169,7 @@ MyStackChanMod::MyStackChanMod(bool _isOffline)
   }
   else{
 #if defined(ENABLE_WAKEWORD)
-    wakeword_init();
+    //wakeword_init();
 #endif
   }
 
