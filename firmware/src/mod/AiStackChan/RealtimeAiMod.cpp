@@ -40,7 +40,7 @@ RealtimeAiMod::RealtimeAiMod(bool _isOffline)
 
   pRtLLM = (RealtimeChatGPT*)robot->llm;
 
-  servo_home = false;
+  //servo_home = false;
 
 #if 0
   if(!isOffline){
@@ -118,6 +118,22 @@ void RealtimeAiMod::idle(void)
 {
   pRtLLM->webSocketProcess();
 
+#ifdef REALTIME_API_WITH_TTS
+
+  if(robot->asyncPlaying || (pRtLLM->getOutputTextQueueSize() != 0)){
+    // 発話中
+    pRtLLM->setSpeaking(true);
+    servo_home = false;
+    avatar.setExpression(Expression::Happy);
+  }
+  else{
+    // 発話停止中かつキューにテキストがない場合はLLM機能に発話終了を通知
+    pRtLLM->setSpeaking(false);
+    servo_home = true;
+    avatar.setExpression(Expression::Neutral);
+  }
+
+#endif  //REALTIME_API_WITH_TTS
 
   // Alarm
   //
@@ -126,8 +142,6 @@ void RealtimeAiMod::idle(void)
 
     /* Query the period of the timer that expires. */
     xRemainingTime = xTimerGetExpiryTime( xAlarmTimer ) - xTaskGetTickCount();
-    //avatarText = "残り" + String(xRemainingTime / 1000) + "秒";
-    //avatar.setSpeechText(avatarText.c_str());
     avatarText = "Alarm countdown: " + String(xRemainingTime / 1000);
     avatar.set_isSubWindowEnable(true);
     avatar.updateSubWindowTxt(avatarText, 0, 0, 200, 50);

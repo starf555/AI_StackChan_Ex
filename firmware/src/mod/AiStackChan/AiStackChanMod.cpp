@@ -86,9 +86,6 @@ static void STT_ChatGPT(const char *base64_buf = NULL) {
     avatar.setSpeechText("");
     avatar.setExpression(Expression::Neutral);
     servo_home = true;
-#if defined(ENABLE_WAKEWORD)
-    mode = 0;
-#endif
   } else {
     Serial.println("音声認識失敗");
     avatar.setExpression(Expression::Sad);
@@ -366,7 +363,7 @@ void AiStackChanMod::idle(void)
     if(register_wakeword_required)
     {
       register_wakeword_required = false;
-      
+      btnB_longPressed();
     }
 #endif  //defined(USE_EXTENSION_FUNCTIONS)
 #endif  //defined(ARDUINO_M5STACK_CORES3)

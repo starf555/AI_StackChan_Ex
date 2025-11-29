@@ -11,8 +11,10 @@
 #include "ChatGPT.h"
 #include <WebSocketsClient.h>
 
-//#define REALTIME_API_BETA
 //#define REALTIME_API_RECORD_TEST
+
+#define RT_REC_LENGTH       (2000)      //0.125s 
+#define RT_REC_SAMPLE_RATE  (16000)
 
 #ifdef REALTIME_API_RECORD_TEST
 #define REALTIME_RECORD_TIMEOUT     (4 * 1000)      //ms  ※録音テスト再生用バッファのサイズに合わせる
@@ -29,11 +31,11 @@ public:   //本当はprivateにしたいところだがコールバック関数�
 
     // for record
     //
-    int16_t* rtRecBuf;
+    //int16_t* rtRecBuf;
     int rtRecSamplerate;
     int rtRecLength;
     bool realtime_recording;
-    bool speaking;
+    bool response_done;
     portTickType startTime;
 
 #ifdef REALTIME_API_RECORD_TEST
@@ -60,6 +62,10 @@ public:
     int base64_decode(const char* input, int size, char* output);
     void hexdump(const void *mem, uint32_t len, uint8_t cols = 16);
     void streamAudioDelta(String& delta);
+
+    // for TTS
+    //
+    String outputText;
 
 };
 

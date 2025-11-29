@@ -19,27 +19,44 @@ SpiRamJsonDocument chat_doc(0);     // PSRAMから確保するように変更。
                                     // TODO: 本当はLLMBaseのメンバ変数にしたい
 
 
-LLMBase::LLMBase(llm_param_t param): param{param}, isOfflineService{false} 
+LLMBase::LLMBase(llm_param_t param, int _promptMaxSize)
+  : param(param), promptMaxSize(_promptMaxSize), isOfflineService(false) 
 {
-  chat_doc = SpiRamJsonDocument(1024*50);
+  chat_doc = SpiRamJsonDocument(promptMaxSize);
 
 }
 
-bool LLMBase::init_chat_doc(const char *data)
+
+// for async TTS
+//
+
+String LLMBase::getOutputText()
 {
-  DeserializationError error = deserializeJson(chat_doc, data);
-  if (error) {
-    Serial.println("DeserializationError");
+    String text = "";
+    if(outputTextQueue.size() != 0){
+        text = outputTextQueue[0];
+        outputTextQueue.pop_front();
+    }
+    return text;
+}
 
-    String json_str; //= JSON.stringify(chat_doc);
-    serializeJsonPretty(chat_doc, json_str);  // 文字列をシリアルポートに出力する
-    Serial.println(json_str);
+int LLMBase::getOutputTextQueueSize()
+{
+    return outputTextQueue.size();
+}
 
-    return false;
+// 区切り文字の有無を確認
+// 戻り値：区切り文字あり(true)、なし(false)
+int LLMBase::search_delimiter(String& text)
+{
+  // 区切り文字を検出
+  int idx = text.indexOf("。");
+  if(idx < 0){
+    idx = text.indexOf("？");
   }
-  String json_str; //= JSON.stringify(chat_doc);
-  serializeJsonPretty(chat_doc, json_str);  // 文字列をシリアルポートに出力する
-//  Serial.println(json_str);
-  return true;
-}
+  if(idx < 0){
+    idx = text.indexOf("！");
+  }
 
+  return idx;
+}
